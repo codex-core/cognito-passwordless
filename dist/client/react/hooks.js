@@ -20,7 +20,7 @@ import { fido2CreateCredential, fido2DeleteCredential, fido2ListCredentials, fid
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
-import { signUpUser as signUpUserApi, confirmSignUpAndRequestMagicLink as confirmSignUpAndRequestMagicLinkApi, completeSignUpFlow as completeSignUpFlowApi } from "../common.js";
+import { handleUserSignUp, confirmSignUpAndRequestMagicLinkApi, completeSignUpFlowApi } from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens } from "../storage.js";
 import { busyState } from "../model.js";
@@ -406,7 +406,7 @@ function _usePasswordless() {
         /** Sign up a new user with email verification */
         signUpUser: ({ username, email, password, userAttributes, clientMetadata, }) => {
             setLastError(undefined);
-            const signUpResult = signUpUserApi({
+            const signUpResult = handleUserSignUp({
                 username,
                 email,
                 password,

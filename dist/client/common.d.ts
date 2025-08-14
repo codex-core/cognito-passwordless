@@ -19,7 +19,7 @@ export declare const signOut: (props?: {
 /**
  * Sign up a new user with email verification
  */
-export declare const signUpUser: (props: {
+export declare const handleUserSignUp: (props: {
     username: string;
     email: string;
     password?: string;
@@ -37,7 +37,7 @@ export declare const signUpUser: (props: {
 /**
  * Confirm sign-up with verification code and optionally request a magic link
  */
-export declare const confirmSignUpAndRequestMagicLink: (props: {
+export declare const confirmSignUpAndRequestMagicLinkApi: (props: {
     username: string;
     confirmationCode: string;
     clientMetadata?: Record<string, string>;
@@ -61,7 +61,7 @@ export declare const confirmSignUpAndRequestMagicLink: (props: {
 /**
  * Complete sign-up flow: sign up user and return confirmation handler
  */
-export declare const completeSignUpFlow: (props: {
+export declare const completeSignUpFlowApi: (props: {
     username: string;
     email: string;
     password?: string;

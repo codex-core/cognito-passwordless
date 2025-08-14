@@ -93,7 +93,7 @@ export const signOut = (props) => {
 /**
  * Sign up a new user with email verification
  */
-export const signUpUser = (props) => {
+export const handleUserSignUp = (props) => {
     const { username, email, password = "TempPassword123!", // Temporary password for passwordless flow
     userAttributes = [], clientMetadata, currentStatus, statusCb, } = props;
     const { debug } = configure();
@@ -142,7 +142,7 @@ export const signUpUser = (props) => {
 /**
  * Confirm sign-up with verification code and optionally request a magic link
  */
-export const confirmSignUpAndRequestMagicLink = (props) => {
+export const confirmSignUpAndRequestMagicLinkApi = (props) => {
     const { username, confirmationCode, clientMetadata, requestMagicLink = true, redirectUri, currentStatus, statusCb, } = props;
     const { debug } = configure();
     if (currentStatus && busyState.includes(currentStatus)) {
@@ -200,12 +200,12 @@ export const confirmSignUpAndRequestMagicLink = (props) => {
 /**
  * Complete sign-up flow: sign up user and return confirmation handler
  */
-export const completeSignUpFlow = (props) => {
-    const signUpResult = signUpUser(props);
+export const completeSignUpFlowApi = (props) => {
+    const signUpResult = handleUserSignUp(props);
     return {
         ...signUpResult,
         confirmSignUp: (confirmationProps) => {
-            return confirmSignUpAndRequestMagicLink({
+            return confirmSignUpAndRequestMagicLinkApi({
                 username: props.username,
                 confirmationCode: confirmationProps.confirmationCode,
                 clientMetadata: props.clientMetadata,

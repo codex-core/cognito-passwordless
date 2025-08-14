@@ -27,9 +27,9 @@ import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
 import { 
-  signUpUser as signUpUserApi, 
-  confirmSignUpAndRequestMagicLink as confirmSignUpAndRequestMagicLinkApi, 
-  completeSignUpFlow as completeSignUpFlowApi 
+  handleUserSignUp,
+  confirmSignUpAndRequestMagicLinkApi, 
+  completeSignUpFlowApi 
 } from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens, TokensFromStorage } from "../storage.js";
@@ -607,7 +607,7 @@ function _usePasswordless() {
       clientMetadata?: Record<string, string>;
     }) => {
       setLastError(undefined);
-      const signUpResult = signUpUserApi({
+      const signUpResult = handleUserSignUp({
         username,
         email,
         password,
