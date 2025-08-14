@@ -2,3 +2,5 @@ cdk.out
 node_modules
 .nyc_output
 *.js
+!dist/**/*.js
+!dist-create-package.cjs
