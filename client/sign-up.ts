@@ -2,10 +2,22 @@ import { signUp, confirmSignUp } from "./cognito-api.js";
 import { configure } from "./config.js";
 import { BusyState, IdleState, busyState } from "./model.js";
 
+let signUpInProgress: ReturnType<typeof _signUpUser> | undefined = undefined;
+export async function signUpUser(
+  ...args: Parameters<typeof _signUpUser>
+) {
+  if (!signUpInProgress) {
+    signUpInProgress = _signUpUser(...args).finally(
+      () => (signUpInProgress = undefined)
+    );
+  }
+  return signUpInProgress;
+}
+
 /**
  * Sign up a new user with email verification
  */
-export const handleUserSignup = (props: {
+async function _signUpUser(props: {
   username: string;
   email: string;
   password?: string;
@@ -13,7 +25,7 @@ export const handleUserSignup = (props: {
   clientMetadata?: Record<string, string>;
   currentStatus?: BusyState | IdleState;
   statusCb?: (status: BusyState | IdleState) => void;
-}) => {
+}) {
   const {
     username,
     email,
@@ -39,45 +51,50 @@ export const handleUserSignup = (props: {
     ...userAttributes.filter(attr => attr.name !== "email"), // Remove duplicate email if exists
   ];
 
-  const signUpCompleted = (async () => {
-    try {
-      debug?.(`Starting sign-up for user: ${username}`);
-      
-      const response = await signUp({
-        username,
-        password,
-        userAttributes: finalUserAttributes,
-        clientMetadata,
-        abort: abort.signal,
-      });
+  try {
+    debug?.(`Starting sign-up for user: ${username}`);
+    
+    const response = await signUp({
+      username,
+      password,
+      userAttributes: finalUserAttributes,
+      clientMetadata,
+      abort: abort.signal,
+    });
 
-      if (abort.signal.aborted) {
-        debug?.("Aborting sign-up");
-        currentStatus && statusCb?.(currentStatus);
-        return response;
-      }
-
-      debug?.(`Sign-up successful for user: ${username}`);
-      statusCb?.("SIGNUP_COMPLETED" as IdleState);
-      return response;
-    } catch (err) {
-      if (abort.signal.aborted) return;
-      debug?.("Sign-up failed:", err);
-      statusCb?.("SIGNUP_FAILED" as IdleState);
-      throw err;
+    if (abort.signal.aborted) {
+      debug?.("Aborting sign-up");
+      currentStatus && statusCb?.(currentStatus);
+      return { response, abort: () => abort.abort() };
     }
-  })();
 
-  return {
-    signUpCompleted,
-    abort: () => abort.abort(),
-  };
-};
+    debug?.(`Sign-up successful for user: ${username}`);
+    statusCb?.("SIGNUP_COMPLETED" as IdleState);
+    return { response, abort: () => abort.abort() };
+  } catch (err) {
+    if (abort.signal.aborted) throw err;
+    debug?.("Sign-up failed:", err);
+    statusCb?.("SIGNUP_FAILED" as IdleState);
+    throw err;
+  }
+}
+
+let confirmSignUpInProgress: ReturnType<typeof _confirmSignUpAndRequestMagicLink> | undefined = undefined;
+export async function confirmSignUpAndRequestMagicLink(
+  ...args: Parameters<typeof _confirmSignUpAndRequestMagicLink>
+) {
+  if (!confirmSignUpInProgress) {
+    confirmSignUpInProgress = _confirmSignUpAndRequestMagicLink(...args).finally(
+      () => (confirmSignUpInProgress = undefined)
+    );
+  }
+  return confirmSignUpInProgress;
+}
 
 /**
  * Confirm sign-up with verification code and optionally request a magic link
  */
-export const handleConfirmSignUpAndRequestMagicLink = (props: {
+async function _confirmSignUpAndRequestMagicLink(props: {
   username: string;
   confirmationCode: string;
   clientMetadata?: Record<string, string>;
@@ -85,7 +102,7 @@ export const handleConfirmSignUpAndRequestMagicLink = (props: {
   redirectUri?: string;
   currentStatus?: BusyState | IdleState;
   statusCb?: (status: BusyState | IdleState) => void;
-}) => {
+}) {
   const {
     username,
     confirmationCode,
@@ -105,65 +122,59 @@ export const handleConfirmSignUpAndRequestMagicLink = (props: {
   statusCb?.("CONFIRMING_SIGNUP" as BusyState);
   const abort = new AbortController();
 
-  const confirmationCompleted = (async () => {
-    try {
-      debug?.(`Confirming sign-up for user: ${username}`);
+  try {
+    debug?.(`Confirming sign-up for user: ${username}`);
+    
+    const confirmResponse = await confirmSignUp({
+      username,
+      confirmationCode,
+      clientMetadata,
+      abort: abort.signal,
+    });
+
+    if (abort.signal.aborted) {
+      debug?.("Aborting sign-up confirmation");
+      currentStatus && statusCb?.(currentStatus);
+      return { confirmResponse, abort: () => abort.abort() };
+    }
+
+    debug?.(`Sign-up confirmation successful for user: ${username}`);
+    statusCb?.("SIGNUP_CONFIRMED" as IdleState);
+
+    // Optionally request magic link for immediate passwordless sign-in
+    if (requestMagicLink) {
+      debug?.(`Requesting magic link for user: ${username}`);
       
-      const confirmResponse = await confirmSignUp({
+      // Import requestSignInLink dynamically to avoid circular dependency
+      const { requestSignInLink } = await import("./magic-link.js");
+      
+      const magicLinkRequest = requestSignInLink({
         username,
-        confirmationCode,
-        clientMetadata,
-        abort: abort.signal,
+        redirectUri,
+        currentStatus: "SIGNUP_CONFIRMED" as IdleState,
+        statusCb,
       });
 
-      if (abort.signal.aborted) {
-        debug?.("Aborting sign-up confirmation");
-        currentStatus && statusCb?.(currentStatus);
-        return confirmResponse;
-      }
-
-      debug?.(`Sign-up confirmation successful for user: ${username}`);
-      statusCb?.("SIGNUP_CONFIRMED" as IdleState);
-
-      // Optionally request magic link for immediate passwordless sign-in
-      if (requestMagicLink) {
-        debug?.(`Requesting magic link for user: ${username}`);
-        
-        // Import requestSignInLink dynamically to avoid circular dependency
-        const { requestSignInLink } = await import("./magic-link.js");
-        
-        const magicLinkRequest = requestSignInLink({
-          username,
-          redirectUri,
-          currentStatus: "SIGNUP_CONFIRMED" as IdleState,
-          statusCb,
-        });
-
-        return {
-          confirmResponse,
-          magicLinkRequest,
-        };
-      }
-
-      return { confirmResponse };
-    } catch (err) {
-      if (abort.signal.aborted) return;
-      debug?.("Sign-up confirmation failed:", err);
-      statusCb?.("SIGNUP_CONFIRMATION_FAILED" as IdleState);
-      throw err;
+      return {
+        confirmResponse,
+        magicLinkRequest,
+        abort: () => abort.abort(),
+      };
     }
-  })();
 
-  return {
-    confirmationCompleted,
-    abort: () => abort.abort(),
-  };
-};
+    return { confirmResponse, abort: () => abort.abort() };
+  } catch (err) {
+    if (abort.signal.aborted) throw err;
+    debug?.("Sign-up confirmation failed:", err);
+    statusCb?.("SIGNUP_CONFIRMATION_FAILED" as IdleState);
+    throw err;
+  }
+}
 
 /**
  * Complete sign-up flow: sign up user and return confirmation handler
  */
-export const completeSignUpFlowApi = (props: {
+export async function completeSignUpFlow(props: {
   username: string;
   email: string;
   password?: string;
@@ -171,17 +182,17 @@ export const completeSignUpFlowApi = (props: {
   clientMetadata?: Record<string, string>;
   currentStatus?: BusyState | IdleState;
   statusCb?: (status: BusyState | IdleState) => void;
-}) => {
-  const signUpResult = handleUserSignup(props);
+}) {
+  const signUpResult = await signUpUser(props);
 
   return {
     ...signUpResult,
-    confirmSignUp: (confirmationProps: {
+    confirmSignUp: async (confirmationProps: {
       confirmationCode: string;
       requestMagicLink?: boolean;
       redirectUri?: string;
     }) => {
-      return handleConfirmSignUpAndRequestMagicLink({
+      return confirmSignUpAndRequestMagicLink({
         username: props.username,
         confirmationCode: confirmationProps.confirmationCode,
         clientMetadata: props.clientMetadata,
@@ -192,4 +203,4 @@ export const completeSignUpFlowApi = (props: {
       });
     },
   };
-};
+}

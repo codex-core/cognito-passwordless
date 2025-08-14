@@ -42,7 +42,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { completeSignUpFlowApi, handleConfirmSignUpAndRequestMagicLink, handleUserSignup } from "../sign-up.js";
+import { completeSignUpFlow, confirmSignUpAndRequestMagicLink, signUpUser } from "../sign-up.js";
 
 const PasswordlessContext = React.createContext<UsePasswordless | undefined>(
   undefined
@@ -589,7 +589,7 @@ function _usePasswordless() {
       []
     ),
     /** Sign up a new user with email verification */
-    signUpUser: ({
+    signUpUser: async ({
       username,
       email,
       password,
@@ -603,20 +603,24 @@ function _usePasswordless() {
       clientMetadata?: Record<string, string>;
     }) => {
       setLastError(undefined);
-      const signUpResult = handleUserSignup({
-        username,
-        email,
-        password,
-        userAttributes,
-        clientMetadata,
-        currentStatus: signingInStatus,
-        statusCb: setSigninInStatus,
-      });
-      signUpResult.signUpCompleted.catch(setLastError);
-      return signUpResult;
+      try {
+        const signUpResult = await signUpUser({
+          username,
+          email,
+          password,
+          userAttributes,
+          clientMetadata,
+          currentStatus: signingInStatus,
+          statusCb: setSigninInStatus,
+        });
+        return signUpResult;
+      } catch (error) {
+        setLastError(error as Error);
+        throw error;
+      }
     },
     /** Confirm sign-up with verification code and optionally request a magic link */
-    confirmSignUpAndRequestMagicLink: ({
+    confirmSignUpAndRequestMagicLink: async ({
       username,
       confirmationCode,
       clientMetadata,
@@ -630,20 +634,24 @@ function _usePasswordless() {
       redirectUri?: string;
     }) => {
       setLastError(undefined);
-      const confirmResult = handleConfirmSignUpAndRequestMagicLink({
-        username,
-        confirmationCode,
-        clientMetadata,
-        requestMagicLink,
-        redirectUri,
-        currentStatus: signingInStatus,
-        statusCb: setSigninInStatus,
-      });
-      confirmResult.confirmationCompleted.catch(setLastError);
-      return confirmResult;
+      try {
+        const confirmResult = await confirmSignUpAndRequestMagicLink({
+          username,
+          confirmationCode,
+          clientMetadata,
+          requestMagicLink,
+          redirectUri,
+          currentStatus: signingInStatus,
+          statusCb: setSigninInStatus,
+        });
+        return confirmResult;
+      } catch (error) {
+        setLastError(error as Error);
+        throw error;
+      }
     },
     /** Complete sign-up flow: sign up user and return confirmation handler */
-    completeSignUpFlow: ({
+    completeSignUpFlow: async ({
       username,
       email,
       password,
@@ -657,17 +665,21 @@ function _usePasswordless() {
       clientMetadata?: Record<string, string>;
     }) => {
       setLastError(undefined);
-      const signUpFlow = completeSignUpFlowApi({
-        username,
-        email,
-        password,
-        userAttributes,
-        clientMetadata,
-        currentStatus: signingInStatus,
-        statusCb: setSigninInStatus,
-      });
-      signUpFlow.signUpCompleted.catch(setLastError);
-      return signUpFlow;
+      try {
+        const signUpFlow = await completeSignUpFlow({
+          username,
+          email,
+          password,
+          userAttributes,
+          clientMetadata,
+          currentStatus: signingInStatus,
+          statusCb: setSigninInStatus,
+        });
+        return signUpFlow;
+      } catch (error) {
+        setLastError(error as Error);
+        throw error;
+      }
     },
   };
 }

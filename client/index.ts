@@ -13,8 +13,16 @@
  * language governing permissions and limitations under the License.
  */
 import { configure, configureFromAmplify } from "./config.js";
+import { 
+  signUpUser, 
+  confirmSignUpAndRequestMagicLink, 
+  completeSignUpFlow 
+} from "./sign-up.js";
 
 export const Passwordless = {
   configure,
   configureFromAmplify,
+  signUpUser,
+  confirmSignUpAndRequestMagicLink,
+  completeSignUpFlow,
 };
