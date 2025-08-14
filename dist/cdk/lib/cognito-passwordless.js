@@ -353,6 +353,7 @@ class Passwordless extends constructs_1.Construct {
                     preferredUsername: false,
                     email: true,
                 },
+                selfSignUpEnabled: true,
                 ...props.userPoolProps,
                 lambdaTriggers: {
                     ...props.userPoolProps?.lambdaTriggers,
