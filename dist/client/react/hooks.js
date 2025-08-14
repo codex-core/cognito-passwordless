@@ -20,7 +20,7 @@ import { fido2CreateCredential, fido2DeleteCredential, fido2ListCredentials, fid
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
-import { signUpUser, confirmSignUpAndRequestMagicLink, completeSignUpFlow } from "../common.js";
+import { signUpUser as signUpUserApi, confirmSignUpAndRequestMagicLink as confirmSignUpAndRequestMagicLinkApi, completeSignUpFlow as completeSignUpFlowApi } from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens } from "../storage.js";
 import { busyState } from "../model.js";
@@ -406,7 +406,7 @@ function _usePasswordless() {
         /** Sign up a new user with email verification */
         signUpUser: ({ username, email, password, userAttributes, clientMetadata, }) => {
             setLastError(undefined);
-            const signUpResult = signUpUser({
+            const signUpResult = signUpUserApi({
                 username,
                 email,
                 password,
@@ -421,7 +421,7 @@ function _usePasswordless() {
         /** Confirm sign-up with verification code and optionally request a magic link */
         confirmSignUpAndRequestMagicLink: ({ username, confirmationCode, clientMetadata, requestMagicLink = true, redirectUri, }) => {
             setLastError(undefined);
-            const confirmResult = confirmSignUpAndRequestMagicLink({
+            const confirmResult = confirmSignUpAndRequestMagicLinkApi({
                 username,
                 confirmationCode,
                 clientMetadata,
@@ -436,7 +436,7 @@ function _usePasswordless() {
         /** Complete sign-up flow: sign up user and return confirmation handler */
         completeSignUpFlow: ({ username, email, password, userAttributes, clientMetadata, }) => {
             setLastError(undefined);
-            const signUpFlow = completeSignUpFlow({
+            const signUpFlow = completeSignUpFlowApi({
                 username,
                 email,
                 password,
