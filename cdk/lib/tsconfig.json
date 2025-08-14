@@ -11,6 +11,14 @@
     "alwaysStrict": true,
     "noImplicitReturns": true,
     "experimentalDecorators": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "../../dist"
+  ]
 }
