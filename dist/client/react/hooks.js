@@ -25,7 +25,7 @@ import { retrieveTokens, storeTokens } from "../storage.js";
 import { busyState } from "../model.js";
 import { scheduleRefresh, refreshTokens } from "../refresh.js";
 import React, { useState, useEffect, useContext, useCallback, useMemo, useRef, } from "react";
-import { completeSignUpFlow, confirmSignUpAndRequestMagicLink, signUpUser } from "../sign-up.js";
+import { completeSignUpFlow, confirmSignUpAndRequestMagicLink } from "../sign-up.js";
 const PasswordlessContext = React.createContext(undefined);
 /** React hook that provides convenient access to the Passwordless lib's features */
 export function usePasswordless() {
@@ -404,25 +404,7 @@ function _usePasswordless() {
         /** Toggle showing the FIDO2 credential manager UI component */
         toggleShowAuthenticatorManager: useCallback(() => setShowAuthenticatorManager((state) => !state), []),
         /** Sign up a new user with email verification */
-        signUpUser: async ({ username, email, password, userAttributes, clientMetadata, }) => {
-            setLastError(undefined);
-            try {
-                const signUpResult = await signUpUser({
-                    username,
-                    email,
-                    password,
-                    userAttributes,
-                    clientMetadata,
-                    currentStatus: signingInStatus,
-                    statusCb: setSigninInStatus,
-                });
-                return signUpResult;
-            }
-            catch (error) {
-                setLastError(error);
-                throw error;
-            }
-        },
+        signUpUser: 'IM HERE',
         /** Confirm sign-up with verification code and optionally request a magic link */
         confirmSignUpAndRequestMagicLink: async ({ username, confirmationCode, clientMetadata, requestMagicLink = true, redirectUri, }) => {
             setLastError(undefined);

@@ -589,36 +589,7 @@ function _usePasswordless() {
       []
     ),
     /** Sign up a new user with email verification */
-    signUpUser: async ({
-      username,
-      email,
-      password,
-      userAttributes,
-      clientMetadata,
-    }: {
-      username: string;
-      email: string;
-      password?: string;
-      userAttributes?: { name: string; value: string }[];
-      clientMetadata?: Record<string, string>;
-    }) => {
-      setLastError(undefined);
-      try {
-        const signUpResult = await signUpUser({
-          username,
-          email,
-          password,
-          userAttributes,
-          clientMetadata,
-          currentStatus: signingInStatus,
-          statusCb: setSigninInStatus,
-        });
-        return signUpResult;
-      } catch (error) {
-        setLastError(error as Error);
-        throw error;
-      }
-    },
+    signUpUser: 'IM HERE',
     /** Confirm sign-up with verification code and optionally request a magic link */
     confirmSignUpAndRequestMagicLink: async ({
       username,

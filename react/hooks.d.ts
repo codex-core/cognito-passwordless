@@ -129,19 +129,7 @@ export declare function usePasswordless(): {
     /** Toggle showing the FIDO2 credential manager UI component */
     toggleShowAuthenticatorManager: () => void;
     /** Sign up a new user with email verification */
-    signUpUser: ({ username, email, password, userAttributes, clientMetadata, }: {
-        username: string;
-        email: string;
-        password?: string;
-        userAttributes?: {
-            name: string;
-            value: string;
-        }[];
-        clientMetadata?: Record<string, string>;
-    }) => Promise<{
-        response: import("../config.js").MinimalResponse;
-        abort: () => void;
-    }>;
+    signUpUser: string;
     /** Confirm sign-up with verification code and optionally request a magic link */
     confirmSignUpAndRequestMagicLink: ({ username, confirmationCode, clientMetadata, requestMagicLink, redirectUri, }: {
         username: string;
