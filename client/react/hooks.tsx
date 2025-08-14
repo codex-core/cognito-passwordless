@@ -26,6 +26,11 @@ import {
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
+import { 
+  signUpUser, 
+  confirmSignUpAndRequestMagicLink, 
+  completeSignUpFlow 
+} from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens, TokensFromStorage } from "../storage.js";
 import { BusyState, IdleState, busyState } from "../model.js";
@@ -587,6 +592,87 @@ function _usePasswordless() {
       () => setShowAuthenticatorManager((state) => !state),
       []
     ),
+    /** Sign up a new user with email verification */
+    signUpUser: ({
+      username,
+      email,
+      password,
+      userAttributes,
+      clientMetadata,
+    }: {
+      username: string;
+      email: string;
+      password?: string;
+      userAttributes?: { name: string; value: string }[];
+      clientMetadata?: Record<string, string>;
+    }) => {
+      setLastError(undefined);
+      const signUpResult = signUpUser({
+        username,
+        email,
+        password,
+        userAttributes,
+        clientMetadata,
+        currentStatus: signingInStatus,
+        statusCb: setSigninInStatus,
+      });
+      signUpResult.signUpCompleted.catch(setLastError);
+      return signUpResult;
+    },
+    /** Confirm sign-up with verification code and optionally request a magic link */
+    confirmSignUpAndRequestMagicLink: ({
+      username,
+      confirmationCode,
+      clientMetadata,
+      requestMagicLink = true,
+      redirectUri,
+    }: {
+      username: string;
+      confirmationCode: string;
+      clientMetadata?: Record<string, string>;
+      requestMagicLink?: boolean;
+      redirectUri?: string;
+    }) => {
+      setLastError(undefined);
+      const confirmResult = confirmSignUpAndRequestMagicLink({
+        username,
+        confirmationCode,
+        clientMetadata,
+        requestMagicLink,
+        redirectUri,
+        currentStatus: signingInStatus,
+        statusCb: setSigninInStatus,
+      });
+      confirmResult.confirmationCompleted.catch(setLastError);
+      return confirmResult;
+    },
+    /** Complete sign-up flow: sign up user and return confirmation handler */
+    completeSignUpFlow: ({
+      username,
+      email,
+      password,
+      userAttributes,
+      clientMetadata,
+    }: {
+      username: string;
+      email: string;
+      password?: string;
+      userAttributes?: { name: string; value: string }[];
+      clientMetadata?: Record<string, string>;
+    }) => {
+      setLastError(undefined);
+      const signUpFlow = completeSignUpFlow({
+        username,
+        email,
+        password,
+        userAttributes,
+        clientMetadata,
+        currentStatus: signingInStatus,
+        statusCb: setSigninInStatus,
+      });
+      signUpFlow.signUpCompleted.catch(setLastError);
+      return signUpFlow;
+    },
   };
 }
 

@@ -7,6 +7,8 @@ export const busyState = [
     "SIGNING_IN_WITH_PASSWORD",
     "SIGNING_IN_WITH_OTP",
     "SIGNING_OUT",
+    "SIGNING_UP",
+    "CONFIRMING_SIGNUP",
 ];
 const idleState = [
     "NO_SIGNIN_LINK",
@@ -22,4 +24,8 @@ const idleState = [
     "FIDO2_SIGNIN_FAILED",
     "SIGNIN_WITH_OTP_FAILED",
     "PASSWORD_SIGNIN_FAILED",
+    "SIGNUP_COMPLETED",
+    "SIGNUP_FAILED",
+    "SIGNUP_CONFIRMED",
+    "SIGNUP_CONFIRMATION_FAILED",
 ];

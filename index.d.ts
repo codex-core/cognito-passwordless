@@ -16,4 +16,80 @@ import { configure, configureFromAmplify } from "./config.js";
 export declare const Passwordless: {
     configure: typeof configure;
     configureFromAmplify: typeof configureFromAmplify;
+    signOut: (props?: {
+        currentStatus?: import("./model.js").BusyState | import("./model.js").IdleState;
+        tokensRemovedLocallyCb?: () => void;
+        statusCb?: (status: import("./model.js").BusyState | import("./model.js").IdleState) => void;
+    }) => {
+        signedOut: Promise<void>;
+        abort: () => void;
+    };
+    signUpUser: (props: {
+        username: string;
+        email: string;
+        password?: string;
+        userAttributes?: {
+            name: string;
+            value: string;
+        }[];
+        clientMetadata?: Record<string, string>;
+        currentStatus?: import("./model.js").BusyState | import("./model.js").IdleState;
+        statusCb?: (status: import("./model.js").BusyState | import("./model.js").IdleState) => void;
+    }) => {
+        signUpCompleted: Promise<import("./config.js").MinimalResponse | undefined>;
+        abort: () => void;
+    };
+    confirmSignUpAndRequestMagicLink: (props: {
+        username: string;
+        confirmationCode: string;
+        clientMetadata?: Record<string, string>;
+        requestMagicLink?: boolean;
+        redirectUri?: string;
+        currentStatus?: import("./model.js").BusyState | import("./model.js").IdleState;
+        statusCb?: (status: import("./model.js").BusyState | import("./model.js").IdleState) => void;
+    }) => {
+        confirmationCompleted: Promise<import("./config.js").MinimalResponse | {
+            confirmResponse: import("./config.js").MinimalResponse;
+            magicLinkRequest: {
+                signInLinkRequested: Promise<string>;
+                abort: () => void;
+            };
+        } | {
+            confirmResponse: import("./config.js").MinimalResponse;
+            magicLinkRequest?: undefined;
+        } | undefined>;
+        abort: () => void;
+    };
+    completeSignUpFlow: (props: {
+        username: string;
+        email: string;
+        password?: string;
+        userAttributes?: {
+            name: string;
+            value: string;
+        }[];
+        clientMetadata?: Record<string, string>;
+        currentStatus?: import("./model.js").BusyState | import("./model.js").IdleState;
+        statusCb?: (status: import("./model.js").BusyState | import("./model.js").IdleState) => void;
+    }) => {
+        confirmSignUp: (confirmationProps: {
+            confirmationCode: string;
+            requestMagicLink?: boolean;
+            redirectUri?: string;
+        }) => {
+            confirmationCompleted: Promise<import("./config.js").MinimalResponse | {
+                confirmResponse: import("./config.js").MinimalResponse;
+                magicLinkRequest: {
+                    signInLinkRequested: Promise<string>;
+                    abort: () => void;
+                };
+            } | {
+                confirmResponse: import("./config.js").MinimalResponse;
+                magicLinkRequest?: undefined;
+            } | undefined>;
+            abort: () => void;
+        };
+        signUpCompleted: Promise<import("./config.js").MinimalResponse | undefined>;
+        abort: () => void;
+    };
 };

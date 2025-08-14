@@ -20,6 +20,7 @@ import { fido2CreateCredential, fido2DeleteCredential, fido2ListCredentials, fid
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
+import { signUpUser, confirmSignUpAndRequestMagicLink, completeSignUpFlow } from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens } from "../storage.js";
 import { busyState } from "../model.js";
@@ -402,6 +403,51 @@ function _usePasswordless() {
         showAuthenticatorManager,
         /** Toggle showing the FIDO2 credential manager UI component */
         toggleShowAuthenticatorManager: useCallback(() => setShowAuthenticatorManager((state) => !state), []),
+        /** Sign up a new user with email verification */
+        signUpUser: ({ username, email, password, userAttributes, clientMetadata, }) => {
+            setLastError(undefined);
+            const signUpResult = signUpUser({
+                username,
+                email,
+                password,
+                userAttributes,
+                clientMetadata,
+                currentStatus: signingInStatus,
+                statusCb: setSigninInStatus,
+            });
+            signUpResult.signUpCompleted.catch(setLastError);
+            return signUpResult;
+        },
+        /** Confirm sign-up with verification code and optionally request a magic link */
+        confirmSignUpAndRequestMagicLink: ({ username, confirmationCode, clientMetadata, requestMagicLink = true, redirectUri, }) => {
+            setLastError(undefined);
+            const confirmResult = confirmSignUpAndRequestMagicLink({
+                username,
+                confirmationCode,
+                clientMetadata,
+                requestMagicLink,
+                redirectUri,
+                currentStatus: signingInStatus,
+                statusCb: setSigninInStatus,
+            });
+            confirmResult.confirmationCompleted.catch(setLastError);
+            return confirmResult;
+        },
+        /** Complete sign-up flow: sign up user and return confirmation handler */
+        completeSignUpFlow: ({ username, email, password, userAttributes, clientMetadata, }) => {
+            setLastError(undefined);
+            const signUpFlow = completeSignUpFlow({
+                username,
+                email,
+                password,
+                userAttributes,
+                clientMetadata,
+                currentStatus: signingInStatus,
+                statusCb: setSigninInStatus,
+            });
+            signUpFlow.signUpCompleted.catch(setLastError);
+            return signUpFlow;
+        },
     };
 }
 /** Retrieve the last signed in users from your configured storage (e.g. localStorage) */

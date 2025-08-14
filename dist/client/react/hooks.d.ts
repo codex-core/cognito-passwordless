@@ -19,7 +19,7 @@ export declare function usePasswordless(): {
     /** Last error that occured */
     lastError: Error | undefined;
     /** The status of the most recent sign-in attempt */
-    signingInStatus: "CHECKING_FOR_SIGNIN_LINK" | "REQUESTING_SIGNIN_LINK" | "SIGNING_IN_WITH_LINK" | "STARTING_SIGN_IN_WITH_FIDO2" | "COMPLETING_SIGN_IN_WITH_FIDO2" | "SIGNING_IN_WITH_PASSWORD" | "SIGNING_IN_WITH_OTP" | "SIGNING_OUT" | "NO_SIGNIN_LINK" | "SIGNIN_LINK_REQUEST_FAILED" | "SIGNIN_LINK_REQUESTED" | "SIGNIN_LINK_EXPIRED" | "INVALID_SIGNIN_LINK" | "SIGNED_OUT" | "SIGNED_IN_WITH_LINK" | "SIGNED_IN_WITH_FIDO2" | "SIGNED_IN_WITH_PASSWORD" | "SIGNED_IN_WITH_OTP" | "FIDO2_SIGNIN_FAILED" | "SIGNIN_WITH_OTP_FAILED" | "PASSWORD_SIGNIN_FAILED";
+    signingInStatus: "CHECKING_FOR_SIGNIN_LINK" | "REQUESTING_SIGNIN_LINK" | "SIGNING_IN_WITH_LINK" | "STARTING_SIGN_IN_WITH_FIDO2" | "COMPLETING_SIGN_IN_WITH_FIDO2" | "SIGNING_IN_WITH_PASSWORD" | "SIGNING_IN_WITH_OTP" | "SIGNING_OUT" | "SIGNING_UP" | "CONFIRMING_SIGNUP" | "NO_SIGNIN_LINK" | "SIGNIN_LINK_REQUEST_FAILED" | "SIGNIN_LINK_REQUESTED" | "SIGNIN_LINK_EXPIRED" | "INVALID_SIGNIN_LINK" | "SIGNED_OUT" | "SIGNED_IN_WITH_LINK" | "SIGNED_IN_WITH_FIDO2" | "SIGNED_IN_WITH_PASSWORD" | "SIGNED_IN_WITH_OTP" | "FIDO2_SIGNIN_FAILED" | "SIGNIN_WITH_OTP_FAILED" | "PASSWORD_SIGNIN_FAILED" | "SIGNUP_COMPLETED" | "SIGNUP_FAILED" | "SIGNUP_CONFIRMED" | "SIGNUP_CONFIRMATION_FAILED";
     /** Are we currently busy signing in or out? */
     busy: boolean;
     /**
@@ -128,6 +128,71 @@ export declare function usePasswordless(): {
     showAuthenticatorManager: boolean;
     /** Toggle showing the FIDO2 credential manager UI component */
     toggleShowAuthenticatorManager: () => void;
+    /** Sign up a new user with email verification */
+    signUpUser: ({ username, email, password, userAttributes, clientMetadata, }: {
+        username: string;
+        email: string;
+        password?: string;
+        userAttributes?: {
+            name: string;
+            value: string;
+        }[];
+        clientMetadata?: Record<string, string>;
+    }) => {
+        signUpCompleted: Promise<import("../config.js").MinimalResponse | undefined>;
+        abort: () => void;
+    };
+    /** Confirm sign-up with verification code and optionally request a magic link */
+    confirmSignUpAndRequestMagicLink: ({ username, confirmationCode, clientMetadata, requestMagicLink, redirectUri, }: {
+        username: string;
+        confirmationCode: string;
+        clientMetadata?: Record<string, string>;
+        requestMagicLink?: boolean;
+        redirectUri?: string;
+    }) => {
+        confirmationCompleted: Promise<import("../config.js").MinimalResponse | {
+            confirmResponse: import("../config.js").MinimalResponse;
+            magicLinkRequest: {
+                signInLinkRequested: Promise<string>;
+                abort: () => void;
+            };
+        } | {
+            confirmResponse: import("../config.js").MinimalResponse;
+            magicLinkRequest?: undefined;
+        } | undefined>;
+        abort: () => void;
+    };
+    /** Complete sign-up flow: sign up user and return confirmation handler */
+    completeSignUpFlow: ({ username, email, password, userAttributes, clientMetadata, }: {
+        username: string;
+        email: string;
+        password?: string;
+        userAttributes?: {
+            name: string;
+            value: string;
+        }[];
+        clientMetadata?: Record<string, string>;
+    }) => {
+        confirmSignUp: (confirmationProps: {
+            confirmationCode: string;
+            requestMagicLink?: boolean;
+            redirectUri?: string;
+        }) => {
+            confirmationCompleted: Promise<import("../config.js").MinimalResponse | {
+                confirmResponse: import("../config.js").MinimalResponse;
+                magicLinkRequest: {
+                    signInLinkRequested: Promise<string>;
+                    abort: () => void;
+                };
+            } | {
+                confirmResponse: import("../config.js").MinimalResponse;
+                magicLinkRequest?: undefined;
+            } | undefined>;
+            abort: () => void;
+        };
+        signUpCompleted: Promise<import("../config.js").MinimalResponse | undefined>;
+        abort: () => void;
+    };
 };
 /** React hook that stores and gives access to the last 10 signed in users (from your configured storage) */
 export declare function useLocalUserCache(): {
