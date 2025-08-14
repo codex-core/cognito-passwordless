@@ -558,6 +558,7 @@ export class Passwordless extends Construct {
           preferredUsername: false,
           email: true,
         },
+        selfSignUpEnabled: true,
         ...props.userPoolProps,
         lambdaTriggers: {
           ...props.userPoolProps?.lambdaTriggers,
