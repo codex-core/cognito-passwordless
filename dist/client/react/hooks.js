@@ -20,12 +20,12 @@ import { fido2CreateCredential, fido2DeleteCredential, fido2ListCredentials, fid
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
-import { handleUserSignUp, confirmSignUpAndRequestMagicLinkApi, completeSignUpFlowApi } from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens } from "../storage.js";
 import { busyState } from "../model.js";
 import { scheduleRefresh, refreshTokens } from "../refresh.js";
 import React, { useState, useEffect, useContext, useCallback, useMemo, useRef, } from "react";
+import { completeSignUpFlowApi, handleConfirmSignUpAndRequestMagicLink, handleUserSignup } from "../sign-up.js";
 const PasswordlessContext = React.createContext(undefined);
 /** React hook that provides convenient access to the Passwordless lib's features */
 export function usePasswordless() {
@@ -406,7 +406,7 @@ function _usePasswordless() {
         /** Sign up a new user with email verification */
         signUpUser: ({ username, email, password, userAttributes, clientMetadata, }) => {
             setLastError(undefined);
-            const signUpResult = handleUserSignUp({
+            const signUpResult = handleUserSignup({
                 username,
                 email,
                 password,
@@ -421,7 +421,7 @@ function _usePasswordless() {
         /** Confirm sign-up with verification code and optionally request a magic link */
         confirmSignUpAndRequestMagicLink: ({ username, confirmationCode, clientMetadata, requestMagicLink = true, redirectUri, }) => {
             setLastError(undefined);
-            const confirmResult = confirmSignUpAndRequestMagicLinkApi({
+            const confirmResult = handleConfirmSignUpAndRequestMagicLink({
                 username,
                 confirmationCode,
                 clientMetadata,

@@ -26,11 +26,6 @@ import {
 import { authenticateWithSRP } from "../srp.js";
 import { authenticateWithPlaintextPassword } from "../plaintext.js";
 import { stepUpAuthenticationWithSmsOtp } from "../sms-otp-stepup.js";
-import { 
-  handleUserSignUp,
-  confirmSignUpAndRequestMagicLinkApi, 
-  completeSignUpFlowApi 
-} from "../common.js";
 import { configure } from "../config.js";
 import { retrieveTokens, storeTokens, TokensFromStorage } from "../storage.js";
 import { BusyState, IdleState, busyState } from "../model.js";
@@ -47,6 +42,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { completeSignUpFlowApi, handleConfirmSignUpAndRequestMagicLink, handleUserSignup } from "../sign-up.js";
 
 const PasswordlessContext = React.createContext<UsePasswordless | undefined>(
   undefined
@@ -607,7 +603,7 @@ function _usePasswordless() {
       clientMetadata?: Record<string, string>;
     }) => {
       setLastError(undefined);
-      const signUpResult = handleUserSignUp({
+      const signUpResult = handleUserSignup({
         username,
         email,
         password,
@@ -634,7 +630,7 @@ function _usePasswordless() {
       redirectUri?: string;
     }) => {
       setLastError(undefined);
-      const confirmResult = confirmSignUpAndRequestMagicLinkApi({
+      const confirmResult = handleConfirmSignUpAndRequestMagicLink({
         username,
         confirmationCode,
         clientMetadata,
